@@ -44,9 +44,7 @@ public class Meal {
     }
 
     public void setId(Integer id) {
-        if (id != null && id > 0){
-            this.id = id;
-        }
+        this.id = id;
     }
 
     public void setDateTime(LocalDateTime dateTime) {
@@ -59,20 +57,5 @@ public class Meal {
 
     public void setCalories(int calories) {
         this.calories = calories;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Meal meal = (Meal) o;
-
-        return id.equals(meal.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return id.hashCode();
     }
 }

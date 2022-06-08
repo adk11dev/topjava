@@ -6,13 +6,19 @@
         version="2.1">
 
     <tlib-version>1.0</tlib-version>
-    <short-name>formatDateTime</short-name>
+    <short-name>function</short-name>
     <uri>https://example.com/functions</uri>
 
     <function>
         <name>formatDateTime</name>
         <function-class>ru.javawebinar.topjava.util.TimeUtil</function-class>
         <function-signature>java.lang.String formatDateTime(java.time.LocalDateTime)</function-signature>
+    </function>
+
+    <function>
+        <name>getTodayDateTime</name>
+        <function-class>java.time.LocalDateTime</function-class>
+        <function-signature>java.time.LocalDateTime now()</function-signature>
     </function>
 
 </taglib>

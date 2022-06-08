@@ -1,13 +1,12 @@
 package ru.javawebinar.topjava.web;
 
 import org.slf4j.Logger;
-import ru.javawebinar.topjava.dao.InMemoryDao;
+import ru.javawebinar.topjava.dao.InMemoryMealDao;
 import ru.javawebinar.topjava.dao.Storage;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.model.MealTo;
 import ru.javawebinar.topjava.util.MealsUtil;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -15,8 +14,8 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.Month;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -25,11 +24,12 @@ public class MealServlet extends HttpServlet {
     private static final String LIST_MEALS = "/meals.jsp";
     private static final Logger log = getLogger(MealServlet.class);
     private static final int CALORIES_LIMIT = 2000;
-    private final Storage<Meal> dao;
+    private Storage<Meal> dao;
 
-    public MealServlet() {
-        this.dao = new InMemoryDao();
-        fillMealsMap();
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        this.dao = new InMemoryMealDao();
     }
 
     @Override
@@ -38,41 +38,42 @@ public class MealServlet extends HttpServlet {
         String action = request.getParameter("action");
 
         if (action == null) {
-            forward = LIST_MEALS;
-            List<MealTo> mealTo = MealsUtil.filteredByStreams(dao.getAll(), LocalTime.MIN, LocalTime.MAX, CALORIES_LIMIT);
-            request.setAttribute("mealsList", mealTo);
-        } else {
-            int id;
-            switch (action.toLowerCase()) {
-                case "delete":
-                    id = Integer.parseInt(request.getParameter("id"));
-
-                    log.debug("delete meal");
-                    dao.delete(id);
-
-                    log.debug("redirect to meals");
-                    response.sendRedirect("meals");
-                    return;
-                case "update":
-                    id = Integer.parseInt(request.getParameter("id"));
-                    Meal meal = dao.get(id);
-
-                    forward = INSERT_OR_EDIT;
-
-                    request.setAttribute("meal", meal);
-                    break;
-                case "insert":
-                    forward = INSERT_OR_EDIT;
-                    break;
-                default:
-                    response.sendRedirect("meals");
-                    return;
-            }
+            action = "list";
         }
 
+        switch (action.toLowerCase()) {
+            case "list": {
+                forward = LIST_MEALS;
+                List<MealTo> mealTo = MealsUtil.filteredByStreams(dao.getAll(), LocalTime.MIN, LocalTime.MAX, CALORIES_LIMIT);
+                request.setAttribute("mealsList", mealTo);
+                break;
+            }
+            case "delete": {
+                int id = getIdInRequest(request);
+                log.debug("delete meal");
+                dao.delete(id);
+                log.debug("redirect to meals");
+                response.sendRedirect("meals");
+                return;
+            }
+            case "update": {
+                int id = getIdInRequest(request);
+                Meal meal = dao.get(id);
+                forward = INSERT_OR_EDIT;
+                request.setAttribute("meal", meal);
+                break;
+            }
+            case "insert": {
+                forward = INSERT_OR_EDIT;
+                break;
+            }
+            default: {
+                response.sendRedirect("meals");
+                return;
+            }
+        }
         log.debug("forward to meals");
-        RequestDispatcher view = request.getRequestDispatcher(forward);
-        view.forward(request, response);
+        request.getRequestDispatcher(forward).forward(request, response);
     }
 
     @Override
@@ -80,37 +81,35 @@ public class MealServlet extends HttpServlet {
         request.setCharacterEncoding("UTF-8");
 
         if (!Objects.equals(request.getParameter("id"), "")) {
-            log.debug("updated meal");
-            dao.update(request.getParameterMap());
-        } else {
-            log.debug("save meal");
-            dao.create(request.getParameterMap());
-        }
+            int id = getIdInRequest(request);
+            Meal meal = dao.get(id);
 
+            LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("dateTime"));
+            meal.setDateTime(dateTime);
+
+            String description = request.getParameter("description");
+            meal.setDescription(description);
+
+            int calories = Integer.parseInt(request.getParameter("calories"));
+            meal.setCalories(calories);
+
+            log.debug("updated meal");
+            dao.update(meal);
+        } else {
+            LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("dateTime"));
+            String description = request.getParameter("description");
+            int calories = Integer.parseInt(request.getParameter("calories"));
+
+            Meal meal = new Meal(dateTime, description, calories);
+
+            log.debug("save meal");
+            dao.create(meal);
+        }
         log.debug("redirect to meals");
         response.sendRedirect("meals");
     }
 
-    private void fillMealsMap() {
-        List<Meal> meals = new ArrayList<>();
-        meals.add(new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500));
-        meals.add(new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000));
-        meals.add(new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500));
-        meals.add(new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100));
-        meals.add(new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0), "Завтрак", 1000));
-        meals.add(new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500));
-        meals.add(new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410));
-
-
-        Map<String, String[]> mealsMap = new HashMap<>();
-        for (Meal meal : meals) {
-            mealsMap.put("dateTime", new String[]{meal.getDateTime().toString()});
-            mealsMap.put("description", new String[]{meal.getDescription()});
-            mealsMap.put("calories", new String[]{String.valueOf(meal.getCalories())});
-
-            dao.create(mealsMap);
-
-            mealsMap.clear();
-        }
+    private Integer getIdInRequest(HttpServletRequest request) {
+        return Integer.parseInt(request.getParameter("id"));
     }
 }
