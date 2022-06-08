@@ -14,10 +14,10 @@
 <h2>${meal !=null ? "Edit meal" : "Insert meals"}</h2>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <form method="POST" action='meals' name="frmInsertEdit">
-    <input type="hidden" name="id" value="${id}">
-    DateTime : <input type="datetime-local" name="dateTime" value="${meal.getDateTime()}" /> <br/>
-    Description : <input type="text" name="description" value="${meal.getDescription()}" /><br/>
-    Calories : <input type="text" name="calories" value="${meal.getCalories()}" /><br/>
+    <input type="hidden" name="id" value="${meal.id}">
+    DateTime : <input type="datetime-local" name="dateTime" value="${meal.dateTime}"/> <br/>
+    Description : <input type="text" name="description" value="${meal.description}"/><br/>
+    Calories : <input type="text" name="calories" value="${meal.calories}"/><br/>
     <input type="submit" value="${meal !=null ? "Update" : "Insert"}"/>
     <input type="button" onclick="history.back();" value="Cancel"/>
 </form>

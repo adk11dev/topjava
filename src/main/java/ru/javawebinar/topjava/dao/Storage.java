@@ -1,15 +1,16 @@
 package ru.javawebinar.topjava.dao;
 
 import java.util.List;
+import java.util.Map;
 
 public interface Storage<T> {
     List<T> getAll();
 
-    T get(Integer id);
+    T get(int key);
 
-    void save(T t);
+    T create(Map<String, String[]> map);
 
-    void update(Integer id,T t);
+    T update(Map<String, String[]> map);
 
-    void delete(Integer id);
+    void delete(int key);
 }

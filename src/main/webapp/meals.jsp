@@ -33,6 +33,7 @@
 <h2>Meals</h2>
 <h4><a href="?action=insert">Add Meal</a></h4>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib uri="https://example.com/functions" prefix="f" %>
 <table class="mealsList">
     <tr class="tr-header">
         <td>Date</td>
@@ -41,12 +42,12 @@
     </tr>
     <jsp:useBean id="mealsList" scope="request" type="java.util.List"/>
     <c:forEach var="meal" items="${mealsList}">
-        <tr class=${meal.isExcess() ? "tr-font-red" : "tr-font-green"}>
-            <td>${timeUtil.formatDateTime(meal.getDateTime(), "yyyy-MM-dd HH:mm")}</td>
-            <td>${meal.getDescription()}</td>
-            <td>${meal.getCalories()}</td>
-            <td><a href="?action=update&id=${meal.getId()}">Update</a></td>
-            <td><a href="?action=delete&id=${meal.getId()}">Delete</a></td>
+        <tr class=${meal.excess ? "tr-font-red" : "tr-font-green"}>
+            <td>${f:formatDateTime(meal.dateTime)}</td>
+            <td>${meal.description}</td>
+            <td>${meal.calories}</td>
+            <td><a href="?action=update&id=${meal.id}">Update</a></td>
+            <td><a href="?action=delete&id=${meal.id}">Delete</a></td>
         </tr>
     </c:forEach>
 </table>
