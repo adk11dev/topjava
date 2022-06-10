@@ -6,7 +6,7 @@ import java.time.format.DateTimeFormatter;
 
 public class TimeUtil {
     private static final String DATE_TIME_PATTERN = "yyyy-MM-dd HH:mm";
-    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
+    private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN);
 
     private TimeUtil() {
     }
@@ -16,6 +16,11 @@ public class TimeUtil {
     }
 
     public static String formatDateTime(LocalDateTime dateTime) {
-        return dateTime.format(dateTimeFormatter);
+        return dateTime.format(DATE_TIME_FORMATTER);
+    }
+
+    public static LocalDateTime getNowDateTime(){
+        LocalDateTime now = LocalDateTime.now();
+        return LocalDateTime.of(now.getYear(),now.getMonth(), now.getDayOfMonth(), now.getHour(), now.getMinute());
     }
 }

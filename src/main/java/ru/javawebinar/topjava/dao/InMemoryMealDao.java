@@ -7,12 +7,12 @@ import java.time.Month;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class InMemoryMealDao implements Storage<Meal> {
-    private final ConcurrentMap<Integer, Meal> mealsMap = new ConcurrentHashMap<>();
+    private final Map<Integer, Meal> mealsMap = new ConcurrentHashMap<>();
 
     private final AtomicInteger counter = new AtomicInteger();
 
@@ -33,12 +33,14 @@ public class InMemoryMealDao implements Storage<Meal> {
     @Override
     public Meal create(Meal meal) {
         meal.setId(counter.incrementAndGet());
-        return mealsMap.putIfAbsent(meal.getId(), meal);
+        mealsMap.put(meal.getId(), meal);
+        return mealsMap.get(meal.getId());
     }
 
     @Override
     public Meal update(Meal meal) {
-        return mealsMap.replace(meal.getId(), meal);
+        mealsMap.replace(meal.getId(), meal);
+        return mealsMap.get(meal.getId());
     }
 
     @Override
@@ -46,7 +48,7 @@ public class InMemoryMealDao implements Storage<Meal> {
         mealsMap.remove(id);
     }
 
-    public void fillMealsMap() {
+    private void fillMealsMap() {
         List<Meal> meals = Arrays.asList(
                 new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
                 new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000),

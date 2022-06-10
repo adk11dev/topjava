@@ -28,20 +28,15 @@ public class MealServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        super.init();
-        this.dao = new InMemoryMealDao();
+        dao = new InMemoryMealDao();
     }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         String forward;
         String action = request.getParameter("action");
-
-        if (action == null) {
-            action = "list";
-        }
-
-        switch (action.toLowerCase()) {
+        action = (action == null) ? "list" : action.toLowerCase();
+        switch (action) {
             case "list": {
                 forward = LIST_MEALS;
                 List<MealTo> mealTo = MealsUtil.filteredByStreams(dao.getAll(), LocalTime.MIN, LocalTime.MAX, CALORIES_LIMIT);
@@ -80,28 +75,17 @@ public class MealServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
 
+        LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("dateTime"));
+        String description = request.getParameter("description");
+        int calories = Integer.parseInt(request.getParameter("calories"));
+        Meal meal = new Meal(dateTime, description, calories);
+
         if (!Objects.equals(request.getParameter("id"), "")) {
             int id = getIdInRequest(request);
-            Meal meal = dao.get(id);
-
-            LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("dateTime"));
-            meal.setDateTime(dateTime);
-
-            String description = request.getParameter("description");
-            meal.setDescription(description);
-
-            int calories = Integer.parseInt(request.getParameter("calories"));
-            meal.setCalories(calories);
-
+            meal.setId(id);
             log.debug("updated meal");
             dao.update(meal);
         } else {
-            LocalDateTime dateTime = LocalDateTime.parse(request.getParameter("dateTime"));
-            String description = request.getParameter("description");
-            int calories = Integer.parseInt(request.getParameter("calories"));
-
-            Meal meal = new Meal(dateTime, description, calories);
-
             log.debug("save meal");
             dao.create(meal);
         }
@@ -109,7 +93,7 @@ public class MealServlet extends HttpServlet {
         response.sendRedirect("meals");
     }
 
-    private Integer getIdInRequest(HttpServletRequest request) {
+    private int getIdInRequest(HttpServletRequest request) {
         return Integer.parseInt(request.getParameter("id"));
     }
 }

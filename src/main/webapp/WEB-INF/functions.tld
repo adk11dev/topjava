@@ -18,7 +18,13 @@
     <function>
         <name>getTodayDateTime</name>
         <function-class>java.time.LocalDateTime</function-class>
-        <function-signature>java.time.LocalDateTime now()</function-signature>
+        <function-signature>java.time.LocalDateTime now().</function-signature>
+    </function>
+
+    <function>
+        <name>getNowDateTime</name>
+        <function-class>ru.javawebinar.topjava.util.TimeUtil</function-class>
+        <function-signature>java.time.LocalDateTime getNowDateTime()</function-signature>
     </function>
 
 </taglib>

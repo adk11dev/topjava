@@ -1,4 +1,6 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ taglib prefix="f" uri="https://example.com/functions"%>
 <html lang="ru">
 <head>
     <title>Meals</title>
@@ -32,8 +34,6 @@
 <hr>
 <h2>Meals</h2>
 <h4><a href="?action=insert">Add Meal</a></h4>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@taglib uri="https://example.com/functions" prefix="f" %>
 <table class="mealsList">
     <tr class="tr-header">
         <td>Date</td>
